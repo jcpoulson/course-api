@@ -26,26 +26,24 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
     const currentUser = req.currentUser
 
     if (currentUser) {
-        const users = await User.findAll();
-        users.map(user => {
+        const user = await User.findByPk(currentUser.id);
             delete user.dataValues.createdAt;
             delete user.dataValues.updatedAt;
             delete user.dataValues.password;
-        })
-        res.json(users)
+        res.json(user)
         res.status(200).end()
     } else {
+        res.status(401)
         res.json({
             "Error": "Access Denied"
-        })
-        res.status(401).end()
+        }).end()
     }
 }))
 
 // Create New User Route
 router.post('/users', asyncHandler(async (req, res) => {
     try {
-        await User.create({
+        const newUser = await User.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             emailAddress: req.body.emailAddress,
@@ -54,9 +52,11 @@ router.post('/users', asyncHandler(async (req, res) => {
         res.location('/')
         res.status(201).end()
     } catch (error) {
-        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-            const errors = error.errors.map(err => err.message);
-            res.status(400).json({ errors });   
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError' || error.name === "Error") {
+            if (error.name === "Error") {
+                error.message = "One or more required fields is missing"
+            }
+            res.status(400).json({ error: error.message });   
           }
     }
 }))
@@ -113,10 +113,10 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
               }
         }
     } else {
+        res.status(401)
         res.json({
             "Error": "Access Denied"
-        })
-        res.status(401).end()
+        }).end()
     }
 }))
 
@@ -147,14 +147,14 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
         } catch (error) {
             if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
                 const errors = error.errors.map(err => err.message);
-                res.status(400).json({ errors });   
+                res.status(400).json({ errors });
               }
         }
     } else {
+        res.status(401)
         res.json({
             "Error": "Access Denied"
-        })
-        res.status(401).end()
+        }).end()
     }
 }))
 
@@ -168,10 +168,10 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
         course.destroy();
         res.status(204).end()
     } else {
+        res.status(401)
         res.json({
             "Error": "Access Denied"
-        })
-        res.status(401).end()
+        }).end()
     }
 }))
 
