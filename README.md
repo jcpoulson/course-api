@@ -9,10 +9,10 @@ So this project currently runs a postgres database but we are taking this API of
 Another note about this project is that it uses the Sequelize ORM for interacting with the database, if you aren't familiar with what an ORM is, it is short for Object Relational Mapper, and they are libraries that allow you to write JavaScript or whatever language it is written in to interact with the sql database.
 
 instead of writing
-  SELECT * FROM TABLE
+    SELECT * FROM TABLE
 
 You would write
-  Table.select().all()
+    Table.select().all()
 
 
 Please Proceed to /Documentation/start.md
